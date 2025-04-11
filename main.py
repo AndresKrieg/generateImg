@@ -1,12 +1,13 @@
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 import requests
+import os
 
 
 
 
 # Pegá tu token de Replicate aquí:
-REPLICATE_TOKEN = "r8_Y6b7BwsuaKJCvnJTqG2k3j14FdVumzo24vSh3"
+REPLICATE_TOKEN = os.getenv("REPLICATE_TOKEN")
 
 # ✅ Versión válida del modelo estable gratuito
 MODEL_VERSION = "95b7223104132402a9ae91cc677285bc5eb997834bd2349fa486f53910fd68b3" 
