@@ -9,20 +9,25 @@ from fastapi import FastAPI, Request
 app = FastAPI()
 
 @app.post("/generar-imagen")
-async def generar_imagen(request: Request):
-    body = await request.json()
-    replicate_token = body.get("replicate_token")
-    
-    # Aquí puedes usar replicate_token en tu lógica
-    # Ejemplo (pseudocódigo):
-    # cliente_replicate = ReplicateClient(token=replicate_token)
-    
-    return {"status": "recibido", "token": replicate_token}
 
-# ✅ Versión válida del modelo estable gratuito
-MODEL_VERSION = "95b7223104132402a9ae91cc677285bc5eb997834bd2349fa486f53910fd68b3" 
- 
-app = FastAPI()
+async def generar_imagen(request: Request):
+    try:
+        data = await request.json()
+        replicate_token = data.get("replicate_token")
+
+        if not replicate_token:
+            return {"error": "No se recibió la API key"}
+
+        # Crear cliente de Replicate con token recibido
+        client = replicate.Client(api_token=replicate_token)
+
+        # Aquí iría tu lógica para generar imagen
+        # output = client.run(...)
+
+        return {"status": "OK", "mensaje": "Token recibido y cliente creado"}
+
+    except Exception as e:
+        return {"error": f"Error inesperado: {e}"}
 
 # Configurar CORS para permitir llamadas desde el frontend
 app.add_middleware(
