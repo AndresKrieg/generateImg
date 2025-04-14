@@ -4,12 +4,17 @@ import requests
 import os
 
 
+
+
+# Pegá tu token de Replicate aquí:
 REPLICATE_TOKEN = os.getenv("REPLICATE_TOKEN")
 
+# ✅ Versión válida del modelo estable gratuito
 MODEL_VERSION = "95b7223104132402a9ae91cc677285bc5eb997834bd2349fa486f53910fd68b3" 
 
 app = FastAPI()
 
+# Configurar CORS para permitir llamadas desde el frontend
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -72,7 +77,7 @@ async def generar_imagen(request: Request):
         if not prediction_url:
             return {"error": "No se pudo obtener la URL de seguimiento del modelo"}
 
-        # Esperar a que la imagen esté lista
+        # Esperar a que la imagen esté listas
         while True:
             result = requests.get(prediction_url, headers={"Authorization": f"Token {REPLICATE_TOKEN}"}).json()
             print(" Estado actual:", result["status"])
