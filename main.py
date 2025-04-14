@@ -88,4 +88,4 @@ async def generar_imagen(request: Request):
 
     except Exception as e:
         print("❌ Error inesperado:", str(e))
-        return {"error": f"Error en el backend: {str(e)}"} 
+        return {"error": f"Error en el backend: {str(e)}"}  
