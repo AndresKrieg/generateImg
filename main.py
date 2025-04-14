@@ -81,4 +81,10 @@ async def generar_imagen(request: Request):
             print("⌛ Estado actual:", result["status"])
 
             if result["status"] == "succeeded":
-                return {"imagen
+                return {"imagen_generada": result["output"][0]}
+            elif result["status"] == "failed":
+                return {"error": "Fallo en la generación de imagen"}
+
+    except Exception as e:
+        print("❌ Error inesperado:", str(e))
+        return {"error": f"Error en el backend: {str(e)}"}
