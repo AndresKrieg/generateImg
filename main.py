@@ -26,6 +26,7 @@ async def generar_imagen(request: Request):
 
         if not replicate_token:
             return {"error": "No se recibió la API key"}
+        print(f"🔑 Token que se está usando para Replicate: {replicate_token}") 
         if not prompt or not image_url:
             return {"error": "Faltan parámetros (prompt o image_url)"}
 
