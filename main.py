@@ -19,7 +19,7 @@ app.add_middleware(
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
-)
+) 
 
 @app.post("/api/generar-imagen")
 async def generar_imagen(request: Request):
