@@ -2,6 +2,7 @@ from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 import requests
 import os
+from fastapi import Request
 
 
 
@@ -22,8 +23,15 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
-
+from fastapi import Request
 @app.post("/api/generar-imagen")
+async def generar_imagen(request: Request):
+    headers = request.headers
+    print("🔐 Authorization Header:", headers.get("authorization"))
+
+    data = await request.json()
+    print("📥 Recibido del frontend:", data)
+    
 async def generar_imagen(request: Request):
     try:
         data = await request.json()
