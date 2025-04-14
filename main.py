@@ -3,11 +3,21 @@ from fastapi.middleware.cors import CORSMiddleware
 import requests
 import os
 
-
-
-
 # Pegá tu token de Replicate aquí:
-REPLICATE_TOKEN = os.getenv("REPLICATE_TOKEN")
+from fastapi import FastAPI, Request
+
+app = FastAPI()
+
+@app.post("/generar-imagen")
+async def generar_imagen(request: Request):
+    body = await request.json()
+    replicate_token = body.get("replicate_token")
+    
+    # Aquí puedes usar replicate_token en tu lógica
+    # Ejemplo (pseudocódigo):
+    # cliente_replicate = ReplicateClient(token=replicate_token)
+    
+    return {"status": "recibido", "token": replicate_token}
 
 # ✅ Versión válida del modelo estable gratuito
 MODEL_VERSION = "95b7223104132402a9ae91cc677285bc5eb997834bd2349fa486f53910fd68b3" 
