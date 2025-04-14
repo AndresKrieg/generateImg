@@ -2,16 +2,17 @@ from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 import requests
 import os
+from fastapi.responses import JSONResponse
 
-# Obtiene el token desde las variables de entorno
+# Pegá tu token de Replicate aquí:
 REPLICATE_TOKEN = os.getenv("REPLICATE_TOKEN")
 
-# Versión del modelo gratuito de Replicate
-MODEL_VERSION = "95b7223104132402a9ae91cc677285bc5eb997834bd2349fa486f53910fd68b3" 
+# ✅ Versión válida del modelo estable gratuito
+MODEL_VERSION = "95b7223104132402a9ae91cc677285bc5eb997834bd2349fa486f53910fd68b3"
 
 app = FastAPI()
 
-# CORS para permitir conexión desde cualquier origen (puedes limitarlo si quieres)
+# Configurar CORS para permitir llamadas desde el frontend
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -23,27 +24,21 @@ app.add_middleware(
 @app.post("/api/generar-imagen")
 async def generar_imagen(request: Request):
     try:
-        headers = request.headers
-        print("🔐 Authorization Header:", headers.get("authorization"))
-
+        # Obtener los datos de la solicitud
         data = await request.json()
         print("📥 Recibido del frontend:", data)
 
+        # Verificar que el 'prompt' esté presente
         prompt = data.get("prompt")
         if not prompt:
-            return {"error": "Falta el prompt"}
+            return JSONResponse(content={"error": "Falta el prompt"}, status_code=400)
 
-        # Imagen base y máscara fija
+        # URLs de las imágenes de fondo y máscara (asegurarse de que estas sean correctas)
         image_url = "https://www.incolmotos-yamaha.com.co/wp-content/uploads/2025/04/yamahaNmaxBgImgAI.jpg"
         image_mask = "https://www.incolmotos-yamaha.com.co/wp-content/uploads/2025/04/yamahaNmaxBgImgAI-mask.jpg"
+        negative_prompt = "blurry, two riders, respect the mask, distorted, extra limbs, modify mask, floating objects, surreal background, unrealistic lighting, low quality, wrong colors, vehicle flying, deformed rider, shadows missing, duplicated wheels, glitch, abstract art\n"
 
-        negative_prompt = (
-            "blurry, two riders, respect the mask, distorted, extra limbs, modify mask, "
-            "floating objects, surreal background, unrealistic lighting, low quality, wrong colors, "
-            "vehicle flying, deformed rider, shadows missing, duplicated wheels, glitch, abstract art"
-        )
-
-        # Enviar solicitud a Replicate
+        # Petición al modelo gratuito (texto a imagen)
         response = requests.post(
             "https://api.replicate.com/v1/predictions",
             headers={
@@ -70,27 +65,35 @@ async def generar_imagen(request: Request):
             }
         )
 
-        print("📤 Enviado a Replicate:", prompt)
+        # Verificar la respuesta de la petición al modelo
+        if response.status_code != 200:
+            return JSONResponse(content={"error": "Error al generar la imagen en Replicate"}, status_code=500)
+
+        print(" Enviando a Replicate:", {
+            "prompt": prompt,
+            "image": image_url,
+            "negative_prompt": negative_prompt,
+        })
+
+        # Obtener la URL de la imagen generada
         prediction = response.json()
-
         prediction_url = prediction.get("urls", {}).get("get")
+
         if not prediction_url:
-            return {"error": "No se pudo obtener la URL de seguimiento del modelo"}
+            return JSONResponse(content={"error": "No se pudo obtener la URL de seguimiento del modelo"}, status_code=500)
 
-        # Esperar hasta que la predicción esté lista
+        # Esperar a que la imagen esté lista
         while True:
-            result = requests.get(
-                prediction_url,
-                headers={"Authorization": f"Token {REPLICATE_TOKEN}"}
-            ).json()
-
-            print("⏳ Estado actual:", result["status"])
+            result = requests.get(prediction_url, headers={"Authorization": f"Token {REPLICATE_TOKEN}"}).json()
+            print(" Estado actual:", result["status"])
 
             if result["status"] == "succeeded":
-                return {"imagen_generada": result["output"][0]}
+                # Devolver la imagen generada
+                return JSONResponse(content={"imagen_generada": result["output"][0]}, status_code=200)
             elif result["status"] == "failed":
-                return {"error": "Fallo en la generación de imagen"}
+                return JSONResponse(content={"error": "Fallo en la generación de imagen"}, status_code=500)
 
     except Exception as e:
-        print("❌ Error inesperado:", str(e))
-        return {"error": f"Error en el backend: {str(e)}"}
+        print(" Error inesperado:", str(e))
+        return JSONResponse(content={"error": f"Error en el backend: {str(e)}"}, status_code=500)
+
