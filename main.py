@@ -58,7 +58,7 @@ async def generar_imagen(request: Request):
                     "guidance_scale": 7.5
                 }
             }
-        )
+        ) 
 
         print("📤 Enviando a Replicate:", {
             "prompt": prompt,
