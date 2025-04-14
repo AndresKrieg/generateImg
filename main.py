@@ -77,7 +77,7 @@ async def generar_imagen(request: Request):
         if not prediction_url:
             return {"error": "No se pudo obtener la URL de seguimiento del modelo"}
 
-        # Esperar a que la imagen esté lista
+        # Esperar a que la imagen esté listas
         while True:
             result = requests.get(prediction_url, headers={"Authorization": f"Token {REPLICATE_TOKEN}"}).json()
             print(" Estado actual:", result["status"])
