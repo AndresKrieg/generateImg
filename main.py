@@ -2,7 +2,7 @@ from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 import requests
 
-MODEL_VERSION = "95b7223104132402a9ae91cc677285bc5eb997834bd2349fa486f53910fd68b3"
+#MODEL_VERSION = "95b7223104132402a9ae91cc677285bc5eb997834bd2349fa486f53910fd68b3"
 
 app = FastAPI()
 
@@ -19,7 +19,7 @@ async def generar_imagen(request: Request):
     try:
         data = await request.json()
         print("📥 Recibido del frontend:", data)
-
+        model_version = data.get("model_version")
         replicate_token = data.get("replicate_token")
         prompt = data.get("prompt")
         image_url = data.get("image_url")
@@ -27,6 +27,11 @@ async def generar_imagen(request: Request):
         if not replicate_token:
             return {"error": "No se recibió la API key"}
         print(f"🔑 Token que se está usando para Replicate: {replicate_token}") 
+
+        if not model_version:
+            return {"error": "No se recibió la la version del modelo"}
+        print(f"🔑 version del modelo que se está usando para Replicate: {model_version}") 
+
         if not prompt or not image_url:
             return {"error": "Faltan parámetros (prompt o image_url)"}
 
@@ -41,7 +46,7 @@ async def generar_imagen(request: Request):
                 "Content-Type": "application/json"
             },
             json={
-                "version": MODEL_VERSION,
+                "version": model_version,
                 "input": {
                     "hdr": 0,
                     "mask": image_mask,
