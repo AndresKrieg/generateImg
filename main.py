@@ -1,42 +1,18 @@
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 import requests
-import os
 
-# Pegá tu token de Replicate aquí:
-from fastapi import FastAPI, Request
+MODEL_VERSION = "95b7223104132402a9ae91cc677285bc5eb997834bd2349fa486f53910fd68b3"
 
 app = FastAPI()
 
-@app.post("/generar-imagen")
-
-async def generar_imagen(request: Request):
-    try:
-        data = await request.json()
-        replicate_token = data.get("replicate_token")
-
-        if not replicate_token:
-            return {"error": "No se recibió la API key"}
-
-        # Crear cliente de Replicate con token recibido
-        client = replicate.Client(api_token=replicate_token)
-
-        # Aquí iría tu lógica para generar imagen
-        # output = client.run(...)
-
-        return {"status": "OK", "mensaje": "Token recibido y cliente creado"}
-
-    except Exception as e:
-        return {"error": f"Error inesperado: {e}"}
-
-# Configurar CORS para permitir llamadas desde el frontend
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
-) 
+)
 
 @app.post("/api/generar-imagen")
 async def generar_imagen(request: Request):
@@ -44,19 +20,23 @@ async def generar_imagen(request: Request):
         data = await request.json()
         print("📥 Recibido del frontend:", data)
 
+        replicate_token = data.get("replicate_token")
         prompt = data.get("prompt")
-        if not prompt:
-            return {"error": "Falta el prompt"}
+        image_url = data.get("image_url")
 
-        image_url = "https://www.incolmotos-yamaha.com.co/wp-content/uploads/2025/04/yamahaNmaxBgImgAI.jpg"
+        if not replicate_token:
+            return {"error": "No se recibió la API key"}
+        if not prompt or not image_url:
+            return {"error": "Faltan parámetros (prompt o image_url)"}
+
         image_mask = "https://www.incolmotos-yamaha.com.co/wp-content/uploads/2025/04/yamahaNmaxBgImgAI-mask.jpg"
-        negative_prompt = "blurry, two riders, respect the mask, distorted, extra limbs, modify mask, floating objects, surreal background, unrealistic lighting, low quality, wrong colors, vehicle flying, deformed rider, shadows missing, duplicated wheels, glitch, abstract art\n"
+        negative_prompt = "blurry, two riders, respect the mask, distorted, extra limbs, modify mask, floating objects, surreal background, unrealistic lighting, low quality, wrong colors, vehicle flying, deformed rider, shadows missing, duplicated wheels, glitch, abstract art"
 
-        # Petición al modelo gratuito (texto a imagen)
+        # Enviar solicitud a Replicate
         response = requests.post(
             "https://api.replicate.com/v1/predictions",
             headers={
-                "Authorization": f"Token {REPLICATE_TOKEN}",
+                "Authorization": f"Token {replicate_token}",
                 "Content-Type": "application/json"
             },
             json={
@@ -75,34 +55,30 @@ async def generar_imagen(request: Request):
                     "resolution": "original",
                     "resemblance": 0.5,
                     "guidance_scale": 7.5
-                    }
+                }
             }
         )
 
-        print(" Enviando a Replicate:", {
+        print("📤 Enviando a Replicate:", {
             "prompt": prompt,
             "image": image_url,
             "negative_prompt": negative_prompt,
         })
-        
-        print(" Respuesta de la aplicacion:", response.text)
-        prediction = response.json()
 
+        prediction = response.json()
         prediction_url = prediction.get("urls", {}).get("get")
+
         if not prediction_url:
             return {"error": "No se pudo obtener la URL de seguimiento del modelo"}
 
-        # Esperar a que la imagen esté listas
+        # Esperar resultado
         while True:
-            result = requests.get(prediction_url, headers={"Authorization": f"Token {REPLICATE_TOKEN}"}).json()
-            print(" Estado actual:", result["status"])
+            result = requests.get(
+                prediction_url,
+                headers={"Authorization": f"Token {replicate_token}"}
+            ).json()
+
+            print("⌛ Estado actual:", result["status"])
 
             if result["status"] == "succeeded":
-             return {"imagen_generada": result["output"][0]}
-            elif result["status"] == "failed":
-             return {"error": "Fallo en la generación de imagen"}
-
-    except Exception as e:
-        print(" Error inesperado:", str(e))
-        return {"error": f"Error en el backend: {str(e)}"}
-    
+                return {"imagen
