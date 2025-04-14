@@ -21,7 +21,7 @@ async def generar_imagen(request: Request):
 
 # ✅ Versión válida del modelo estable gratuito
 MODEL_VERSION = "95b7223104132402a9ae91cc677285bc5eb997834bd2349fa486f53910fd68b3" 
-
+ 
 app = FastAPI()
 
 # Configurar CORS para permitir llamadas desde el frontend
