@@ -2,8 +2,6 @@ from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 import requests
 
-#MODEL_VERSION = "95b7223104132402a9ae91cc677285bc5eb997834bd2349fa486f53910fd68b3"
-
 app = FastAPI()
 
 app.add_middleware(
@@ -12,15 +10,15 @@ app.add_middleware(
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
-)
+) 
 
 @app.post("/api/generar-imagen")
 async def generar_imagen(request: Request):
     try:
         data = await request.json()
         print("📥 Recibido del frontend:", data)
-        model_version = data.get("model_version")
-        replicate_token = data.get("replicate_token")
+        model_version = data.image_url
+        replicate_token = data.image("replicate_token")
         prompt = data.get("prompt")
         image_url = data.get("image_url")
 
