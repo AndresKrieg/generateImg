@@ -21,6 +21,10 @@ async def generar_imagen(request: Request):
         replicate_token = data.get("replicate_token")
         prompt = data.get("prompt")
         image_url = data.get("image_url")
+        mask = data.get("mask")
+
+        if not all([replicate_token, model_version, prompt, image_url, mask]):
+            return {"error": "Faltan campos obligatorios en la solicitud."}
 
         if not replicate_token:
             return {"error": "No se recibió la API key"}
@@ -33,7 +37,7 @@ async def generar_imagen(request: Request):
         if not prompt or not image_url:
             return {"error": "Faltan parámetros (prompt o image_url)"}
 
-        image_mask = "https://www.incolmotos-yamaha.com.co/wp-content/uploads/2025/04/yamahaNmaxBgImgAI-mask.jpg"
+        image_mask = mask
         negative_prompt = "blurry, two riders, respect the mask, distorted, extra limbs, modify mask, floating objects, surreal background, unrealistic lighting, low quality, wrong colors, vehicle flying, deformed rider, shadows missing, duplicated wheels, glitch, abstract art"
 
         # Enviar solicitud a Replicate
@@ -66,6 +70,7 @@ async def generar_imagen(request: Request):
         print("📤 Enviando a Replicate:", {
             "prompt": prompt,
             "image": image_url,
+            "mask": mask,
             "negative_prompt": negative_prompt,
         })
 
