@@ -22,6 +22,10 @@ async def generar_imagen(request: Request):
         prompt = data.get("prompt")
         image_url = data.get("image_url")
         mask = data.get("mask")
+        creativity = data.get("creativity")
+
+        if not (0.0 <= creativity <= 1.0):
+            raise HTTPException(status_code=400, detail="El valor de creativity debe estar entre 0.0 y 1.0")
 
         if not all([replicate_token, model_version, prompt, image_url, mask]):
             return {"error": "Faltan campos obligatorios en la solicitud."}
@@ -59,7 +63,7 @@ async def generar_imagen(request: Request):
                     "prompt": prompt,
                     "negative_prompt": negative_prompt,
                     "scheduler": "DPMSolverMultistep",
-                    "creativity": 0.2,
+                    "creativity": creativity,
                     "resolution": "original",
                     "resemblance": 0.5,
                     "guidance_scale": 7.5
