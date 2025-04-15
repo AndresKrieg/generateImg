@@ -76,6 +76,7 @@ async def generar_imagen(request: Request):
             "image": image_url,
             "mask": mask,
             "negative_prompt": negative_prompt,
+            "creativity": creativity,
         })
 
         prediction = response.json()
