@@ -22,6 +22,7 @@ async def generar_imagen(request: Request):
         prompt = data.get("prompt")
         image_url = data.get("image_url")
         mask = data.get("mask")
+        creativity = float(data.get("creativity", 0.2))
 
         if not all([replicate_token, model_version, prompt, image_url, mask]):
             return {"error": "Faltan campos obligatorios en la solicitud."}
@@ -43,8 +44,7 @@ async def generar_imagen(request: Request):
 
         image_mask = mask
         negative_prompt = "blurry, two riders, respect the mask, distorted, extra limbs, modify mask, floating objects, surreal background, unrealistic lighting, low quality, wrong colors, vehicle flying, deformed rider, shadows missing, duplicated wheels, glitch, abstract art"
-        creativity = float(data.get("creativity", 0.2))
-
+    
         # Enviar solicitud a Replicate
         response = requests.post(
             "https://api.replicate.com/v1/predictions",
