@@ -30,6 +30,10 @@ async def generar_imagen(request: Request):
             return {"error": "No se recibió la API key"}
         print(f"🔑 Token que se está usando para Replicate: {replicate_token}") 
 
+        if not creativity:
+            return {"error": "No se recibió el dato de creatividad"}
+        print(f"🔑 la creratividad que estamos enviando para Replicate: {creativity}") 
+
         if not model_version:
             return {"error": "No se recibió la la version del modelo"}
         print(f"🔑 version del modelo que se está usando para Replicate: {model_version}") 
@@ -40,7 +44,7 @@ async def generar_imagen(request: Request):
         image_mask = mask
         negative_prompt = "blurry, two riders, respect the mask, distorted, extra limbs, modify mask, floating objects, surreal background, unrealistic lighting, low quality, wrong colors, vehicle flying, deformed rider, shadows missing, duplicated wheels, glitch, abstract art"
         creativity = float(data.get("creativity", 0.2))
-        
+
         # Enviar solicitud a Replicate
         response = requests.post(
             "https://api.replicate.com/v1/predictions",
