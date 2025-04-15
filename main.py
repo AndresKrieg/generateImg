@@ -39,7 +39,8 @@ async def generar_imagen(request: Request):
 
         image_mask = mask
         negative_prompt = "blurry, two riders, respect the mask, distorted, extra limbs, modify mask, floating objects, surreal background, unrealistic lighting, low quality, wrong colors, vehicle flying, deformed rider, shadows missing, duplicated wheels, glitch, abstract art"
-
+        creativity = float(data.get("creativity", 0.2))
+        
         # Enviar solicitud a Replicate
         response = requests.post(
             "https://api.replicate.com/v1/predictions",
@@ -59,7 +60,7 @@ async def generar_imagen(request: Request):
                     "prompt": prompt,
                     "negative_prompt": negative_prompt,
                     "scheduler": "DPMSolverMultistep",
-                    "creativity": 0.2,
+                    "creativity": creativity,
                     "resolution": "original",
                     "resemblance": 0.5,
                     "guidance_scale": 7.5
