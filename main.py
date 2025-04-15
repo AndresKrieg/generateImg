@@ -10,15 +10,15 @@ app.add_middleware(
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
-) 
+)
 
 @app.post("/api/generar-imagen")
 async def generar_imagen(request: Request):
     try:
         data = await request.json()
         print("📥 Recibido del frontend:", data)
-        model_version = data["image_url"]
-        replicate_token = data.image("replicate_token")
+        model_version = data.get("model_version")
+        replicate_token = data.get("replicate_token")
         prompt = data.get("prompt")
         image_url = data.get("image_url")
 
