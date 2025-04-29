@@ -42,7 +42,7 @@ async def generar_imagen(request: Request):
             return {"error": "Faltan parámetros (prompt o image_url)"}
 
         image_mask = mask
-        negative_prompt = "blurry, two riders, respect the mask, distorted, extra limbs, modify mask, surreal background, unrealistic lighting, low quality, wrong colors, vehicle flying, deformed rider, shadows missing, duplicated wheels, glitch, abstract art, no tire tracks"
+        negative_prompt = "blurry, two riders, respect the mask, distorted, extra limbs, modify mask, unrealistic lighting, low quality, wrong colors, vehicle flying, deformed rider, shadows missing, duplicated wheels, glitch, no tire tracks"
 
         # Enviar solicitud a Replicate
         response = requests.post(
